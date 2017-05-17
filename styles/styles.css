@@ -1,0 +1,154 @@
+@font-face {
+	font-family:Raleway;
+	src: url('./fonts/Raleway-Light.ttf');
+}
+
+@font-face {
+  font-family: 'FontAwesome';
+  src: url('./fonts/fa/fontawesome-webfont.eot?v=4.7.0');
+  src: url('./fonts/fa/fontawesome-webfont.eot?#iefix&v=4.7.0') format('embedded-opentype'), url('./fonts/fa/fontawesome-webfont.woff2?v=4.7.0') format('woff2'), url('./fonts/fa/fontawesome-webfont.woff?v=4.7.0') format('woff'), url('./fonts/fa/fontawesome-webfont.ttf?v=4.7.0') format('truetype'), url('./fonts/fa/fontawesome-webfont.svg?v=4.7.0#fontawesomeregular') format('svg');
+  font-weight: normal;
+  font-style: normal;
+}
+
+body, html {
+	font-family:Raleway;
+	padding:0px;
+	margin:0px;
+	width:100%;
+	height:100%;
+	font-size:20px;
+	font-weight:lighter;
+	color:#505050;
+}
+
+* {
+	box-sizing:border-box;
+}
+
+a {
+	cursor:pointer;
+}
+
+h1,h2,h3,h4,h5 {
+	margin:0px;
+	padding:0px;
+}
+
+h1,h4 {
+	letter-spacing:2px;
+}
+
+#login {
+	width:420px;
+	padding-top:15%;
+	text-align:center;
+	margin:0px auto;
+	transition-duration:0.5s;
+	transition-property:opacity;
+}
+
+#login input {
+	margin-bottom:40px;
+	margin-top:20px;
+	padding:5px 10px;
+	width:300px;
+	font-family:inherit;
+	background:#ddd;
+	white-space:nowrap;
+	border:1px solid #aaa;
+	font-size:17px;
+	text-align:center;
+}
+
+#login input:focus {
+	border-color:#99FF66;
+	background:#eee;
+}
+
+#login input.required,#login input.required:focus {
+	border-color:red;
+}
+
+
+#login.logged {
+	opacity:0.0;
+}
+
+#game {
+	padding-top:50px;
+	text-align:center;
+	opacity:0.0;
+	transition-duration:0.5s;
+	transition-property:opacity;
+}
+
+#game.mounted {
+	opacity:1.0;
+}
+
+#board {
+	width:420px;
+	margin:50px auto;
+	border:1px solid #505050;
+}
+
+.box {
+	border:1px solid #505050;
+	display:inline-block;
+	width:139px;
+	height:140px;
+	background-position:center;
+	background-repeat:no-repeat;
+	background-color:white;
+	font-family:FontAwesome;
+	position:relative;
+	color:white;
+	transition-duration:0.2s;
+	transition-property:color;	
+	cursor:pointer;
+}
+
+.box:before {
+	width:100%;
+	height:100%;
+	top:0px;
+	bottom:0px;
+	left:0px;
+	right:0px;
+	text-align:center;
+	line-height:125px;
+	font-size:110px;
+	position:absolute;
+}
+
+.box.box-X, .box.box-O {
+	color:#505050;
+}
+
+.box-X:before {
+	content:"\f00d";
+}
+
+.box-O:before {
+	content: "\f10c";
+}
+
+.box.winbox {
+	color:red;
+}
+
+button {
+	padding:5px 20px;
+	background:#99FF66;
+	border:0px;
+	white-space:none;
+	color:green;
+	font-family:inherit;
+	font-size:20px;
+}
+
+button:hover {
+	background:#23981C;
+	color:white;
+}
