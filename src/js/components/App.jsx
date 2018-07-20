@@ -1,6 +1,11 @@
 import React from 'react';
 import Peer from 'peerjs';
 
+import HostIndex from './Stages/HostIndex';
+import ClientIndex from './Stages/ClientIndex';
+import Game from './Stages/Game';
+import Error from './Stages/Error';
+
 export default class App extends React.Component {
     peer = null
     connection = null
@@ -50,26 +55,59 @@ export default class App extends React.Component {
         this.peer.on('error', (err) => {
             console.log(err);
             this.setState({
+                connected: false,
                 error: true,
+                stage: 'error',
             });
+
+            setTimeout(() => {
+                this.connection = null;
+            }, 10)
         })
     }
 
     setupClientConnection() {
+        this.setState({
+            stage: 'client-index',
+        });
+
         this.connection = this.peer.connect(this.state.roomID);
         this.connection.on('open', () => {
             this.setState({
                 connected: true,
-            })
+            });
         })
 
         this.connection.on('data', (data) => {
             console.log(data);
         })
+
+        this.connection.on('close', () => {
+            console.log('connection closed.');
+
+            this.setState({
+                connected: false,
+                error: true,
+                stage: 'error',
+            });
+
+            setTimeout(() => {
+                this.connection = null;
+            }, 10)
+        })
     }
 
     setupHostConnection() {
+        this.setState({
+            stage: 'host-index',
+        });
+
         this.peer.on('connection', (connection) => {
+            // allow only one peer to connect
+            if (this.connection) {
+                return connection.close();
+            }
+
             this.connection = connection;
             this.setState({
                 connected: true,
@@ -85,8 +123,6 @@ export default class App extends React.Component {
         if (!this.isHost) {
             return null;
         }
-
-        
     }
 
     sendTestMessage() {
@@ -99,15 +135,21 @@ export default class App extends React.Component {
 
     render() {
         return (
-            <div>
-                <h1>Welcome TTT</h1>
-                <h4>Your Peer id is: {this.state.userID}</h4>
-                <h5>{this.state.isHost ? 'You are a host of the game!' : 'Connecting...'}</h5>
-                {
-                    this.state.connected ? (
-                        <button onClick={this.sendTestMessage.bind(this)}>Sup</button>
-                    ) : ''
-                }
+            <div className="stage-wrapper">
+                <Choose>
+                    <When condition={this.state.connected}>
+                        <Game />
+                    </When>
+                    <When condition={this.state.stage === 'client-index'}>
+                        <ClientIndex />
+                    </When>
+                    <When condition={this.state.stage === 'host-index'}>
+                        <HostIndex room={this.state.roomID} />
+                    </When>
+                </Choose>
+                <If condition={this.state.stage === 'error'}>
+                    <Error />
+                </If>
             </div>
         );
     }

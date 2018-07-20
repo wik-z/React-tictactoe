@@ -4,12 +4,14 @@
   "description": "Tic Tac Toe Game with React",
   "main": "webpack.config.js",
   "scripts": {
-    "hot": "webpack-dev-server --mode development --open",
+    "hot": "webpack-dev-server --inline --hot --mode development --open",
     "production": "webpack --mode production"
   },
   "author": "wiktor zawierucha",
   "license": "ISC",
-  "dependencies": {},
+  "dependencies": {
+    "react-ionicons": "^2.1.6"
+  },
   "devDependencies": {
     "babel-core": "^6.26.3",
     "babel-loader": "^7.1.5",
