@@ -5,4 +5,12 @@ import '../less/app.less';
 
 import App from './components/App';
 
-ReactDOM.render(<App />, document.getElementById('app'));
+import { Provider } from 'react-redux'
+import store from './store/store';
+
+ReactDOM.render(
+    <Provider store={store}>
+        <App />
+    </Provider>, 
+    document.getElementById('app')
+);
