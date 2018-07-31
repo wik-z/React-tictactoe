@@ -6,10 +6,13 @@ import ClientIndex from './Stages/ClientIndex';
 import Game from './Stages/Game';
 import Error from './Stages/Error';
 
+import PeerService from '../services/PeerService';
+
 export default class App extends React.Component {
     peer = null
     connection = null
 
+    // utilise the PeerService
     state = {
         stage: 'boot',
         isHost: true,
@@ -32,7 +35,8 @@ export default class App extends React.Component {
             roomID: room,
         }, () => {
             this.initPeerConnection();
-
+            
+            // TODO: Replace logic with PeerService
             if (this.state.isHost === true) {
                 this.setupHostConnection();
                 return;
@@ -43,27 +47,7 @@ export default class App extends React.Component {
     }
 
     initPeerConnection() {
-        this.peer = new Peer({ key: 'lwjd5qra8257b9' });
-
-        this.peer.on('open', (id) => {
-            this.setState({
-                userID: id,
-                roomID: id,
-            });
-        });
-
-        this.peer.on('error', (err) => {
-            console.log(err);
-            this.setState({
-                connected: false,
-                error: true,
-                stage: 'error',
-            });
-
-            setTimeout(() => {
-                this.connection = null;
-            }, 10)
-        })
+        // TODO: Init the peer connection with PeerService
     }
 
     setupClientConnection() {
@@ -71,30 +55,7 @@ export default class App extends React.Component {
             stage: 'client-index',
         });
 
-        this.connection = this.peer.connect(this.state.roomID);
-        this.connection.on('open', () => {
-            this.setState({
-                connected: true,
-            });
-        })
-
-        this.connection.on('data', (data) => {
-            console.log(data);
-        })
-
-        this.connection.on('close', () => {
-            console.log('connection closed.');
-
-            this.setState({
-                connected: false,
-                error: true,
-                stage: 'error',
-            });
-
-            setTimeout(() => {
-                this.connection = null;
-            }, 10)
-        })
+       // TODO: Call PeerService
     }
 
     setupHostConnection() {
@@ -102,35 +63,13 @@ export default class App extends React.Component {
             stage: 'host-index',
         });
 
-        this.peer.on('connection', (connection) => {
-            // allow only one peer to connect
-            if (this.connection) {
-                return connection.close();
-            }
-
-            this.connection = connection;
-            this.setState({
-                connected: true,
-            });
-
-            this.connection.on('data', (data) => {
-                console.log(data);
-            })
-        });
+        // TODO: Call PeerService
     }
 
     getRoomUrl() {
         if (!this.isHost) {
             return null;
         }
-    }
-
-    sendTestMessage() {
-        if (!this.state.connected || !this.connection) {
-            return;
-        }
-
-        this.connection.send('Test message');
     }
 
     render() {

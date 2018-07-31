@@ -1,6 +1,7 @@
 const initialState = {
     board: Array(9),
-    players: [],
+    playerOne: null,
+    playerTwo: null,
     resolution: null,
     scores: [],
 };

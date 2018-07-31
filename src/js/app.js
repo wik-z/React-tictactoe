@@ -3,6 +3,9 @@ import ReactDOM from 'react-dom';
 
 import '../less/app.less';
 
+import EventBus from './modules/EventBus';
+window.bus = new EventBus();
+
 import App from './components/App';
 
 import { Provider } from 'react-redux'
