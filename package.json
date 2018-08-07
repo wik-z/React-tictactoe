@@ -4,6 +4,7 @@
   "description": "Tic Tac Toe Game with React",
   "main": "webpack.config.js",
   "scripts": {
+    "watch": "webpack --watch --mode development",
     "hot": "webpack-dev-server --inline --hot --mode development --open",
     "production": "webpack --mode production"
   },

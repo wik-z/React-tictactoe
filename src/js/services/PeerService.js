@@ -6,6 +6,15 @@ class PeerService {
     connection = null;
     peer = null;
 
+    events = {
+        PEER_OPEN: 'open',
+        PEER_ERROR: 'error',
+        PEER_CONNECTION: 'connection',
+        CONNECTION_OPEN: 'connection.open',
+        CONNECTION_CLOSE: 'connection.close',
+        CONNECTION_DATA: 'connection.data',
+    }
+
     constructor() {
         this.peer = new Peer({ key: 'lwjd5qra8257b9' });
 
@@ -14,11 +23,13 @@ class PeerService {
 
     registerPeerEvents() {
         this.peer.on('open', (id) => {
-            // dispatch a connection open action
+            this.emit(this.events.PEER_OPEN, id);
         });
 
         this.peer.on('error', (err) => {
-            // Dispatch an error action
+            this.connection = null;
+            this.emit(this.events.PEER_ERROR, err);
+            console.error(err);
         })
     }
 
@@ -29,12 +40,15 @@ class PeerService {
                 return connection.close();
             }
 
-            // TODO: Dispatch a connection set action
-            // TODO: Perform a handshake between users
             this.connection = connection;
 
+            // give a small timeout before sending out a handshake so that the client is ready
+            setTimeout(() => {
+                this.emit(this.events.PEER_CONNECTION);
+            }, 200);
+
             this.connection.on('data', (data) => {
-                // Data received event
+                this.emit(this.events.CONNECTION_DATA, data);
             })
         });
     }
@@ -42,17 +56,27 @@ class PeerService {
     initClientConnection(room) {
         this.connection = this.peer.connect(room);
         this.connection.on('open', () => {
-            // perform a handshake
+            this.emit(this.events.CONNECTION_OPEN);
         })
 
         this.connection.on('data', (data) => {
-            // Data received event
+            this.emit(this.events.CONNECTION_DATA, data);
         })
 
         this.connection.on('close', () => {
             this.connection.close();
             this.connection = null;
+            this.emit(this.events.CONNECTION_CLOSE, data);
         })
+    }
+
+    send(data) {
+        if (!this.connection) {
+            throw new Error('Connection is not estabilished!');
+            return;
+        }
+
+        this.connection.send(data)
     }
 
     on(event, callback) {

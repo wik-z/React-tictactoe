@@ -1,6 +1,10 @@
 import React from 'react';
 import Peer from 'peerjs';
 
+import { connect } from 'react-redux';
+
+import * as connectionActions from '../store/actions/connection/actions';
+
 import HostIndex from './Stages/HostIndex';
 import ClientIndex from './Stages/ClientIndex';
 import Game from './Stages/Game';
@@ -8,18 +12,12 @@ import Error from './Stages/Error';
 
 import PeerService from '../services/PeerService';
 
-export default class App extends React.Component {
+class App extends React.Component {
     peer = null
     connection = null
 
-    // utilise the PeerService
     state = {
-        stage: 'boot',
-        isHost: true,
-        userID: null,
-        roomID: null,
-        error: false,
-        connected: false,
+        stage: 'index'
     }
 
     componentDidMount() {
@@ -27,69 +25,94 @@ export default class App extends React.Component {
     }
 
     init() {
+        this.registerPeerEvents();
+
         const url = new URL(window.location.href);
         const room = url.searchParams.get('room');
-
-        this.setState({
-            isHost: room ? false : true,
-            roomID: room,
-        }, () => {
-            this.initPeerConnection();
-            
-            // TODO: Replace logic with PeerService
-            if (this.state.isHost === true) {
-                this.setupHostConnection();
-                return;
-            }
-
-            this.setupClientConnection();
-        });
-    }
-
-    initPeerConnection() {
-        // TODO: Init the peer connection with PeerService
-    }
-
-    setupClientConnection() {
-        this.setState({
-            stage: 'client-index',
-        });
-
-       // TODO: Call PeerService
-    }
-
-    setupHostConnection() {
-        this.setState({
-            stage: 'host-index',
-        });
-
-        // TODO: Call PeerService
-    }
-
-    getRoomUrl() {
-        if (!this.isHost) {
-            return null;
+    
+        if (room) {
+            PeerService.initClientConnection(room);
+            this.props.setRoom(room);
+            return;
         }
+        
+        this.props.setUserAsHost();
+        PeerService.initHostConnection();
+    }
+
+    registerPeerEvents() {
+        // Same situation for the host. We use a different event because host is handled in a different way
+        PeerService.on(PeerService.events.PEER_CONNECTION, () => {
+            this.props.connectionEstabilished();
+            PeerService.send({
+                type: 'handshake',
+                name: 'HostPlayer',
+            })
+        });
+        
+        // when connection between two peers has been opened, mark it in the store
+        PeerService.on(PeerService.events.CONNECTION_OPEN, () => {
+            this.props.connectionEstabilished();
+            PeerService.send({
+                type: 'handshake',
+                name: 'ClientPlayer',
+            });
+        });
+
+        // for tests
+        PeerService.on(PeerService.events.CONNECTION_DATA, (data) => {
+            console.log(data);
+        });
+
+        // Once a Host peer ID has been created, set it as the room ID
+        PeerService.on(PeerService.events.PEER_OPEN, (id) => {
+            if (this.props.connection.isHost) {
+                this.props.setRoom(id);
+            }
+        })
+
+        // If an error has occured, save that to the store
+        PeerService.on(PeerService.events.PEER_ERROR, this.props.connectionErrored);
+
+        // TODO: Add connection refused handler
+    }
+
+    sendTestMessage() {
+        PeerService.send('TEST MESSAGE');
     }
 
     render() {
         return (
             <div className="stage-wrapper">
                 <Choose>
-                    <When condition={this.state.connected}>
+                    <When condition={this.props.connection.error}>
+                        <Error />
+                    </When>
+                    <When condition={this.props.connection.isConnected}>
                         <Game />
                     </When>
-                    <When condition={this.state.stage === 'client-index'}>
-                        <ClientIndex />
-                    </When>
-                    <When condition={this.state.stage === 'host-index'}>
-                        <HostIndex room={this.state.roomID} />
+                    <When condition={this.state.stage === 'index'}>
+                        <Choose>
+                            <When condition={this.props.connection.isHost}>
+                                <HostIndex room={this.props.connection.roomID} />
+                            </When>
+                            <Otherwise>
+                                <ClientIndex />
+                            </Otherwise>
+                        </Choose>
                     </When>
                 </Choose>
-                <If condition={this.state.stage === 'error'}>
-                    <Error />
-                </If>
             </div>
         );
     }
 }
+
+
+function mapStateToProps(state) {
+    return {
+        game: state.game,
+        connection: state.connection,
+    }
+}
+
+export default connect(mapStateToProps, connectionActions)(App);
