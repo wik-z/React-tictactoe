@@ -15,9 +15,17 @@ class PeerService {
         CONNECTION_DATA: 'connection.data',
     }
 
+    static messageTypes = {
+        HANDSHAKE: 'handshake', // sent by both host and client once connection has been estabilished
+        GAME_START: 'game.start', // sent by host to client when game is about to start;
+        GAME_PLACED_MARKER: 'game.placed-marker', // sent by both host and client when they place a marker on the grid
+        GAME_END: 'game.end' // game end event sent by host; must include the result of the game
+    }
+
     constructor() {
         this.peer = new Peer({ key: 'lwjd5qra8257b9' });
 
+        this.messageTypes = PeerService.messageTypes;
         this.registerPeerEvents();
     }
 
@@ -29,7 +37,7 @@ class PeerService {
         this.peer.on('error', (err) => {
             this.connection = null;
             this.emit(this.events.PEER_ERROR, err);
-            console.error(err);
+            throw new Error(err);
         })
     }
 
@@ -72,7 +80,7 @@ class PeerService {
 
     send(data) {
         if (!this.connection) {
-            throw new Error('Connection is not estabilished!');
+            throw new Error('Connection not estabilished!');
             return;
         }
 
@@ -87,5 +95,6 @@ class PeerService {
         window.bus.$emit(`peer.${event}`, data);
     }
 }
+
 
 export default new PeerService();

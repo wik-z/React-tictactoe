@@ -6,7 +6,8 @@
   "scripts": {
     "watch": "webpack --watch --mode development",
     "hot": "webpack-dev-server --inline --hot --mode development --open",
-    "production": "webpack --mode production"
+    "production": "webpack --mode production",
+    "serve": "webpack-dev-server --mode development --open"
   },
   "author": "wiktor zawierucha",
   "license": "ISC",

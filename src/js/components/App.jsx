@@ -1,5 +1,4 @@
 import React from 'react';
-import Peer from 'peerjs';
 
 import { connect } from 'react-redux';
 
@@ -10,7 +9,7 @@ import ClientIndex from './Stages/ClientIndex';
 import Game from './Stages/Game';
 import Error from './Stages/Error';
 
-import PeerService from '../services/PeerService';
+import PeerService, { PeerMessage } from '../services/PeerService';
 
 class App extends React.Component {
     peer = null
@@ -44,21 +43,15 @@ class App extends React.Component {
         // Same situation for the host. We use a different event because host is handled in a different way
         PeerService.on(PeerService.events.PEER_CONNECTION, () => {
             this.props.connectionEstabilished();
-            PeerService.send({
-                type: 'handshake',
-                name: 'HostPlayer',
-            })
+            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: 'HostPlayer'});
         });
         
         // when connection between two peers has been opened, mark it in the store
         PeerService.on(PeerService.events.CONNECTION_OPEN, () => {
             this.props.connectionEstabilished();
-            PeerService.send({
-                type: 'handshake',
-                name: 'ClientPlayer',
-            });
+            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: 'ClientPlayer'});
         });
-
+         
         // for tests
         PeerService.on(PeerService.events.CONNECTION_DATA, (data) => {
             console.log(data);
@@ -75,10 +68,6 @@ class App extends React.Component {
         PeerService.on(PeerService.events.PEER_ERROR, this.props.connectionErrored);
 
         // TODO: Add connection refused handler
-    }
-
-    sendTestMessage() {
-        PeerService.send('TEST MESSAGE');
     }
 
     render() {
