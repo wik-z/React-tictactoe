@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import * as connectionActions from '../store/actions/connection/actions';
 
+import ChooseName from './Stages/ChooseName';
 import HostIndex from './Stages/HostIndex';
 import ClientIndex from './Stages/ClientIndex';
 import Game from './Stages/Game';
@@ -16,7 +17,7 @@ class App extends React.Component {
     connection = null
 
     state = {
-        stage: 'index'
+        stage: 'choose-name'
     }
 
     componentDidMount() {
@@ -30,7 +31,7 @@ class App extends React.Component {
         const room = url.searchParams.get('room');
     
         if (room) {
-            PeerService.initClientConnection(room);
+            this.props.setUserAsClient();
             this.props.setRoom(room);
             return;
         }
@@ -43,18 +44,22 @@ class App extends React.Component {
         // Same situation for the host. We use a different event because host is handled in a different way
         PeerService.on(PeerService.events.PEER_CONNECTION, () => {
             this.props.connectionEstabilished();
-            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: 'HostPlayer'});
+            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
         });
         
         // when connection between two peers has been opened, mark it in the store
         PeerService.on(PeerService.events.CONNECTION_OPEN, () => {
             this.props.connectionEstabilished();
-            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: 'ClientPlayer'});
+            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
         });
          
         // for tests
         PeerService.on(PeerService.events.CONNECTION_DATA, (data) => {
-            console.log(data);
+            switch (data.type) {
+                case PeerService.messageTypes.HANDSHAKE: {
+                    this.props.setUserData({ name: data.payload.name }, !this.props.connection.isHost);
+                }
+            }
         });
 
         // Once a Host peer ID has been created, set it as the room ID
@@ -70,6 +75,18 @@ class App extends React.Component {
         // TODO: Add connection refused handler
     }
 
+    storeUserName(name) {
+        this.setState({
+            stage: 'index',
+        });
+
+        this.props.setUserData({ name }, this.props.connection.isHost);
+
+        if (!this.props.connection.isHost) {
+            PeerService.initClientConnection(this.props.connection.roomID);
+        }
+    }
+
     render() {
         return (
             <div className="stage-wrapper">
@@ -79,6 +96,9 @@ class App extends React.Component {
                     </When>
                     <When condition={this.props.connection.isConnected}>
                         <Game />
+                    </When>
+                    <When condition={this.state.stage === 'choose-name'}>
+                        <ChooseName onSubmit={this.storeUserName.bind(this)} />
                     </When>
                     <When condition={this.state.stage === 'index'}>
                         <Choose>

@@ -4,6 +4,9 @@ const initialState = {
     isConnected: false,
     isHost: false,
     roomID: null,
+    hostPlayer: {},
+    clientPlayer: {},
+    currentUser() { return this.isHost ? this.hostPlayer : this.clientPlayer },
 };
 
 export default function connection(state = initialState, action) {
@@ -29,10 +32,37 @@ export default function connection(state = initialState, action) {
             }
         }
 
+        case _TYPE.CONNECTION_SET_USER_AS_CLIENT: {
+            return {
+                ...state,
+                isHost: false,
+            }
+        }
+
         case _TYPE.CONNECTION_ERROR: {
             return {
                 ...state,
                 error: true,
+            }
+        }
+
+        case _TYPE.CONNECTION_SET_USER_DATA: {
+            if (action.payload.isHost) {
+                return {
+                    ...state,
+                    hostPlayer: {
+                        ...state.hostPlayer,
+                        ...action.payload.data,
+                    }
+                }
+            }
+
+            return {
+                ...state,
+                clientPlayer: {
+                    ...state.clientPlayer,
+                    ...action.payload.data,
+                }
             }
         }
     }

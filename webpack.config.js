@@ -5,7 +5,6 @@ const OptimizeCSSAssetsPlugin = require('optimize-css-assets-webpack-plugin');
 
 const HtmlWebPackPlugin = require('html-webpack-plugin');
 
-
 module.exports = {
     entry: path.join(__dirname, 'src/js/app.js'),
     output: {
