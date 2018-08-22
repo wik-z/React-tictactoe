@@ -53,11 +53,14 @@ class App extends React.Component {
             PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
         });
          
-        // for tests
         PeerService.on(PeerService.events.CONNECTION_DATA, (data) => {
             switch (data.type) {
                 case PeerService.messageTypes.HANDSHAKE: {
                     this.props.setUserData({ name: data.payload.name }, !this.props.connection.isHost);
+
+                    if (this.props.connection.isHost) {
+
+                    }
                 }
             }
         });
@@ -95,7 +98,7 @@ class App extends React.Component {
                         <Error />
                     </When>
                     <When condition={this.props.connection.isConnected}>
-                        <Game />
+                        <Game connection={this.props.connection} />
                     </When>
                     <When condition={this.state.stage === 'choose-name'}>
                         <ChooseName onSubmit={this.storeUserName.bind(this)} />
@@ -119,7 +122,6 @@ class App extends React.Component {
 
 function mapStateToProps(state) {
     return {
-        game: state.game,
         connection: state.connection,
     }
 }

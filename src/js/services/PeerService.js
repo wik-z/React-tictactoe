@@ -17,7 +17,7 @@ class PeerService {
 
     static messageTypes = {
         HANDSHAKE: 'handshake', // sent by both host and client once connection has been estabilished
-        GAME_START: 'game.start', // sent by host to client when game is about to start;
+        GAME_START: 'game.start', // sent by host to client when game is about to start, must include who starts the game;
         GAME_PLACED_MARKER: 'game.placed-marker', // sent by both host and client when they place a marker on the grid
         GAME_END: 'game.end' // game end event sent by host; must include the result of the game
     }
