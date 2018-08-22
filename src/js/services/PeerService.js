@@ -23,7 +23,7 @@ class PeerService {
     }
 
     constructor() {
-        this.peer = new Peer({ key: 'lwjd5qra8257b9' });
+        this.peer = new Peer({ key: 'lwjd5qra8257b9', secure: window.location.protocol === 'https:' });
 
         this.messageTypes = PeerService.messageTypes;
         this.registerPeerEvents();
