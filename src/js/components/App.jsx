@@ -41,16 +41,24 @@ class App extends React.Component {
     }
 
     registerPeerEvents() {
-        // Same situation for the host. We use a different event because host is handled in a different way
+        // when connection between two peers has been opened, mark it in the store
         PeerService.on(PeerService.events.PEER_CONNECTION, () => {
             this.props.connectionEstabilished();
-            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
+            
+            // give it a timeout so that the connection is properly estabilished
+            setTimeout(() => {
+                PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
+            }, 200);
         });
         
-        // when connection between two peers has been opened, mark it in the store
+        // We use a different event because host connection is handled in a different way
         PeerService.on(PeerService.events.CONNECTION_OPEN, () => {
             this.props.connectionEstabilished();
-            PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
+
+            // give it a timeout so that the connection is properly estabilished
+            setTimeout(() => {
+                PeerService.send({ type: PeerService.messageTypes.HANDSHAKE, payload: this.props.connection.currentUser() });
+            }, 200);
         });
          
         PeerService.on(PeerService.events.CONNECTION_DATA, (data) => {
