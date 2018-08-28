@@ -1,0 +1,28 @@
+.game-board {
+    width: 450px;
+    max-width: 100%;
+    margin: 0 auto;
+
+    & > .inner {
+        margin: 0 -5px;
+        
+        &:after {
+            display: block;
+            content: '';
+            clear: both;
+        }
+    }
+
+    .game-board-box {
+        padding: 0 5px;
+        width: 33.333%;
+        float: left;
+        margin-bottom: 10px;
+        
+        & > .inner {
+            border: 2px solid @brand-dark;
+            width: 100%;
+            padding-top: 100%;
+        }
+    }
+}
