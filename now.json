@@ -1,0 +1,8 @@
+{
+  "version": 2,
+  "builds": [
+    { "src": "dist/app.css", "use": "@now/static" },
+    { "src": "dist/app.js", "use": "@now/static" },
+    { "src": "index.html", "use": "@now/static" }
+  ]
+}
